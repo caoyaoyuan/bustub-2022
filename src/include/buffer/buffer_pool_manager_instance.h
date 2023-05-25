@@ -54,7 +54,7 @@ class BufferPoolManagerInstance : public BufferPoolManager {
 
  protected:
   /**
-   * TODO(P1): Add implementation
+   * TODO(P1 Done): Add implementation
    *
    * @brief Create a new page in the buffer pool. Set page_id to the new page's id, or nullptr if all frames
    * are currently in use and not evictable (in another word, pinned).
@@ -73,7 +73,7 @@ class BufferPoolManagerInstance : public BufferPoolManager {
   auto NewPgImp(page_id_t *page_id) -> Page * override;
 
   /**
-   * TODO(P1): Add implementation
+   * TODO(P1 Done): Add implementation
    *
    * @brief Fetch the requested page from the buffer pool. Return nullptr if page_id needs to be fetched from the disk
    * but all frames are currently in use and not evictable (in another word, pinned).
@@ -91,7 +91,7 @@ class BufferPoolManagerInstance : public BufferPoolManager {
   auto FetchPgImp(page_id_t page_id) -> Page * override;
 
   /**
-   * TODO(P1): Add implementation
+   * TODO(P1 Done): Add implementation
    *
    * @brief Unpin the target page from the buffer pool. If page_id is not in the buffer pool or its pin count is already
    * 0, return false.
