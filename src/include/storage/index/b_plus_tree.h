@@ -23,6 +23,7 @@ namespace bustub {
 
 #define BPLUSTREE_TYPE BPlusTree<KeyType, ValueType, KeyComparator>
 
+enum class OPERATION { SEARCH, INSERT, DELETE };
 /**
  * Main class providing the API for the Interactive B+ Tree.
  *
@@ -45,6 +46,8 @@ class BPlusTree {
   // Returns true if this B+ tree has no keys and values.
   auto IsEmpty() const -> bool;
 
+  auto FindLeaf(const KeyType &key, OPERATION op, Transaction *transaction = nullptr, bool leftMost = false,
+                bool rightMost = false) -> Page *;
   // Insert a key-value pair into this B+ tree.
   auto Insert(const KeyType &key, const ValueType &value, Transaction *transaction = nullptr) -> bool;
 
@@ -58,7 +61,8 @@ class BPlusTree {
   auto Begin() -> INDEXITERATOR_TYPE;
   auto Begin(const KeyType &key) -> INDEXITERATOR_TYPE;
   auto End() -> INDEXITERATOR_TYPE;
-
+  // return the page id of the root node
+  auto GetRootPageId() -> page_id_t;
   // print the B+ tree
   void Print(BufferPoolManager *bpm);
 
@@ -72,6 +76,9 @@ class BPlusTree {
   void RemoveFromFile(const std::string &file_name, Transaction *transaction = nullptr);
   // expose for test purpose
   auto FindLeafPage(const KeyType &key, bool leftMost = false) -> Page *;
+
+  void BatchReleaseLatch(Transaction *transaction);
+  void ReleaseLatchFromQueue(Transaction *transaction);
 
  private:
   void StartNewTree(const KeyType &key, const ValueType &value);
@@ -88,11 +95,12 @@ class BPlusTree {
   auto CoalesceOrRedistribute(N *node, Transaction *transaction = nullptr) -> bool;
 
   template <typename N>
-  auto Coalesce(N **neighbor_node, N **node, BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> **parent,
-                int index, Transaction *transaction = nullptr) -> bool;
+  auto Coalesce(N *neighbor_node, N *node, BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> *parent, int index,
+                Transaction *transaction = nullptr) -> bool;
 
   template <typename N>
-  void Redistribute(N *neighbor_node, N *node, int index);
+  void Redistribute(N *neighbor_node, N *node, BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> *parent,
+                    int index, bool from_prev);
 
   auto AdjustRoot(BPlusTreePage *node) -> bool;
 
@@ -110,6 +118,7 @@ class BPlusTree {
   KeyComparator comparator_;
   int leaf_max_size_;
   int internal_max_size_;
+  ReaderWriterLatch root_page_latch_;
 };
 
 }  // namespace bustub
